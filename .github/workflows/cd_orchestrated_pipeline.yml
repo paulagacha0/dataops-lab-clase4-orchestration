@@ -1,23 +1,35 @@
-name: CD
+name: CD - Orchestrated Data Pipeline
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
 
 jobs:
-  run:
+  execute-pipeline:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.9"
 
       - name: Install dependencies
-        run: python -m pip install -r requirements.txt
+        run: |
+          python -m pip install -r requirements.txt
 
-      - name: Validate config
-        run: python scripts/validate_config.py
+      - name: Execute orchestrated pipeline
+        run: |
+          python -m src.orchestrator
 
-      - name: Run pipeline
-        run: python -m src.orchestrator
+      - name: Upload execution artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-outputs
+          path: |
+            logs/
+            data/outputs/
