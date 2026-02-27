@@ -1,0 +1,3 @@
+﻿pyyaml
+pytest
+pytest-mock
